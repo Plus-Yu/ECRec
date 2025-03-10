@@ -76,7 +76,7 @@ public:
       WrapperData<size_t>* offset = dynamic_cast<WrapperData<size_t>*>(slices.variable->GetSlicer());
       int64_t min_id = offset->Internal();
 
-      auto client = CheckpointUtils::GetTempClient();\
+      auto client = CheckpointUtils::GetTempClient();
       Tensor* data_tensor = slices.variable->GetData();
       Tensor* acc_tensor = slices.variable->GetVariableLikeSlot("accumulation", data_tensor->Type(), []{ return new initializer::ConstantInitializer(0); });
       if (grad_tensor.Type() != data_tensor->Type()) {
@@ -93,6 +93,7 @@ public:
       std::vector<size_t> id_shape_vec({slices.slice_id.size()});
       TensorShape id_shape(id_shape_vec);
       // Tensor ids(types::kInt64, id_shape, new initializer::NoneInitializer());
+      Tensor ids(types::kInt64, id_shape, new initializer::NoneInitializer()); // plusyu
 
       //Crete diff tensor
 
@@ -163,6 +164,7 @@ public:
               T* acc = acc_tensor->Raw<T>(slice);
               T* grad = grad_tensor.Raw<T>(i);
               // *(ids.Raw<size_t>(i)) = id;
+              *(ids.Raw<size_t>(i)) = id; // plusyu
               if (use_nesterov) {
                 for (size_t j = 0; j < slices.slice_size; j++) {
                   *acc = *acc * momentum + *grad;
@@ -207,6 +209,9 @@ public:
       VariableInfo info;
       client->GetVariableInfo(slices.variable->GetName(), &info);
 
+      std::vector<Tensor> parity_ids; // plusyu
+      pu.MapServerToParityIds(ids, parity_ids); //plusyu
+
       auto varname = slices.variable->GetName();
       LOG(INFO) << "Tianyu: varname is " << varname << std::endl;
       for (auto pids : parity_ids) {
@@ -217,6 +222,9 @@ public:
                                                         client->Args(diffs),
                                                         empty_cb);
         });
+
+      std::unique_ptr<FileSystem::WriteStream> s; // plusyu
+      PS_CHECK_STATUS(FileSystem::OpenWriteStreamAny(checkpoint + '/' + VariableNameToFileName(var_name, part), &s)); // plusyu
 
       PS_CHECK_STATUS(CheckpointUtils::SaveTensor(s.get(), ckpt_data_tensor));
       PS_CHECK_STATUS(CheckpointUtils::SaveTensor(s.get(), ckpt_acc_tensor));
@@ -270,4 +278,4 @@ SIMPLE_UDF_REGISTER(MomentumServerUpdater, MomentumServerUpdater);
 }
 }
 }
-}
+
