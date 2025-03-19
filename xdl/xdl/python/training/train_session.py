@@ -21,7 +21,7 @@ from xdl.python.lib.graph import execute
 from xdl.python.training.env import current_env, is_local_mode
 from xdl.python.framework.session import Hook, Session
 from xdl.python.framework.variable import global_variables, variable_registers, global_initializers
-from xdl.python.lib.error import PsError, InternalError, OutOfRange
+from xdl.python.lib.error import PsError, InternalError, OutOfRange, ArgumentError
 from xdl.python.utils.ps_utils import restart_client
 from xdl.python.utils.metrics import add_metrics, get_all_metrics
 from xdl.python.training.training_utils import get_global_step
@@ -253,6 +253,10 @@ def execute_with_retry(ops, retry_cnt=6):
             print('run ops:', ops, ' fail, retry cnt:', i)
             time.sleep(10)
             _restart_client()
+        except (ArgumentError) as e:
+            print('ArgumentError:', str(e))
+            print('Failed ops:', ops)
+            raise e
 
 
 class WorkerHook(Hook):
