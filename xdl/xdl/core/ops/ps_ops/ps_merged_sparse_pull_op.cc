@@ -61,11 +61,6 @@ class PsMergedSparsePullOp : public xdl::OpKernelAsync {
     auto cb = [raw_ids, ps_result, ctx, done](const ps::Status& st) {
       std::vector<Tensor> result;
       std::unique_ptr<std::vector<ps::Tensor> > result_deleter(ps_result);
-
-      if (!st.IsOk()) {
-        XDL_LOG(ERROR) << "PS2XDL::ConvertStatus failed with status: " << st.ToString();
-      }
-
       XDL_CHECK_STATUS_ASYNC(PS2XDL::ConvertStatus(st), done);
       std::chrono::time_point<std::chrono::system_clock> time_start, time_end;
       for (auto& item: *ps_result) {

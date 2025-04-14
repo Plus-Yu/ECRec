@@ -170,6 +170,8 @@ public:
 
   // using simple padding strategy
   void AdaptVariableInfoToServerSpace(VariableInfo *info) {
+    // printf("_single_server_size: %d\n", _single_server_size);
+    // printf(" info->parts.size(): %d\n",  info->parts.size());
     info->shape[0] = _single_server_size * _num_servers;
     for (size_t i = 0; i < info->parts.size(); i ++) {
       info->parts[i].size = _single_server_size;
@@ -254,6 +256,7 @@ private:
   }
 
   size_t ConvertClientToServerSize(size_t si) {
+    // printf("_parity_n: %d, _parity_k: %d, si: %d\n", _parity_n, _parity_k, si);
     if (si * _parity_n % _parity_k == 0) return si * _parity_n / _parity_k;
     else return si * _parity_n / _parity_k + 1;
   }

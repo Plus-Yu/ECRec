@@ -63,7 +63,7 @@ class PsSparseApplyMomentumOp : public xdl::OpKernelAsync {
       done(Status::Ok());
     };
 
-    LOG(INFO) << "Tianyu: ps_sparse_apply_momentum: lr=" << lr << " momentum=" << momentum;
+    // LOG(INFO) << "Tianyu: ps_sparse_apply_momentum: lr=" << lr << " momentum=" << momentum;
 
     std::vector<ps::Tensor> grad_vec = {convert_grad};
     std::vector<double> lr_vec = {lr};

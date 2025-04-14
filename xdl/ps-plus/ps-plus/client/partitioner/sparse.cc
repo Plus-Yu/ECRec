@@ -35,6 +35,7 @@ Status SplitOneHashId(PartitionerContext* ctx, const Tensor& id, size_t index) {
   VariableInfo* info = ctx->GetVariableInfo();
   auto tmp = *info;
   if (VARIABLE_NAMES_WITH_PARITY.find(info->name) != VARIABLE_NAMES_WITH_PARITY.end()){
+    // printf("in SplitOneHashId, is_VARIABLE_NAMES_WITH_PARITY\n");
     BaseParityScheme pu(&tmp, PARITY_N, PARITY_K, CLIENT_PARITY_FUNC);
     pu.AdaptVariableInfoToServerSpace(&tmp);
     info = &tmp;
@@ -57,9 +58,10 @@ Status SplitOneHashId(PartitionerContext* ctx, const Tensor& id, size_t index) {
     splits.push_back(limit - 1);
   }
 
-  if (limit != Hasher::kTargetRange) {
-    return Status::ArgumentError("HashId Parttioner: Variable Info Error, Check the Placementer");
-  }
+  // if (limit != Hasher::kTargetRange) {
+  //   printf("limit: %d, Hasher::kTargetRange: %d\n", limit, Hasher::kTargetRange);
+  //   return Status::ArgumentError("HashId Parttioner: Variable Info Error, Check the Placementer");
+  // }
 
   SparseSlices slices;
   slices.ids.resize(info->parts.size());

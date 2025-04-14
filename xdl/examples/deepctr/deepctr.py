@@ -19,7 +19,7 @@ import time
 import numpy
 
 reader = xdl.DataReader("r1", # name of reader
-                        paths=["./generated_data.txt", "./generated_data.txt", "./generated_data.txt",  "./generated_data.txt",  "./generated_data.txt"], # file paths
+                        paths=["./data.txt"], # file paths
                         enable_state=False) # enable reader state
 
 reader.epochs(5).threads(1).batch_size(10).label_count(1)
